@@ -33,7 +33,7 @@ class CiviCrmConnector
             'entity' => 'Contact',
             'action' => 'getorcreate',
             'json' => 1,
-            'xcm_profile' => 'HumHubMatcher',
+            'xcm_profile' => $module->settings->get('contactManagerProfile'),
             'email' => $email,
             'api_key' => $apiKey,
             'key' => $siteKey,

@@ -17,6 +17,7 @@ $initialRowCount = is_array($model->newsletters) ? count($model->newsletters) : 
         <?= $form->field($model, 'apiUrl')->textInput(['maxlength' => true]) ?>
         <?= $form->field($model, 'apiKey')->passwordInput(['maxlength' => true]) ?>
         <?= $form->field($model, 'siteKey')->passwordInput(['maxlength' => true]) ?>
+        <?= $form->field($model, 'contactManagerProfile')->textInput(['maxlength' => true]) ?>
 
         <hr>
 

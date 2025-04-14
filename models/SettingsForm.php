@@ -10,6 +10,7 @@ class SettingsForm extends Model
     public $apiUrl;
     public $apiKey;
     public $siteKey;
+    public $contactManagerProfile;
 
     /**
      * Dynamic newsletter configurations:
@@ -20,7 +21,7 @@ class SettingsForm extends Model
     public function rules()
     {
         return [
-            [['apiUrl', 'apiKey', 'siteKey'], 'string'],
+            [['apiUrl', 'apiKey', 'siteKey','contactManagerProfile'], 'string'],
             [['apiUrl'], 'url'],
             ['newsletters', 'safe'], // We'll validate each row manually
         ];
@@ -33,6 +34,7 @@ class SettingsForm extends Model
         $this->apiUrl = $settings->get('apiUrl');
         $this->apiKey = $settings->get('apiKey');
         $this->siteKey = $settings->get('siteKey');
+        $this->contactManagerProfile = $settings->get('contactManagerProfile');
 
         $json = $settings->get('newsletters');
         $this->newsletters = $json ? json_decode($json, true) : [];
@@ -50,6 +52,7 @@ class SettingsForm extends Model
         $settings->set('apiUrl', $this->apiUrl);
         $settings->set('apiKey', $this->apiKey);
         $settings->set('siteKey', $this->siteKey);
+        $settings->set('contactManagerProfile', $this->contactManagerProfile);
 
         // Clean and encode newsletter mappings
         $cleaned = array_filter($this->newsletters, function ($entry) {
