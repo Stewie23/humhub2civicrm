@@ -20,6 +20,7 @@ class CiviCrmConnector
         $url = $module->settings->get('apiUrl');
         $apiKey = $module->settings->get('apiKey');
         $siteKey = $module->settings->get('siteKey');
+        $profileName = $module->settings->get('contactManagerProfile');
 
         if (!$url || !$apiKey || !$siteKey) {
             Yii::error('CiviCrmConnector: Missing API configuration.', 'humhub\modules\humhub2civicrm');
@@ -28,38 +29,88 @@ class CiviCrmConnector
 
         $client = new Client(['transport' => 'yii\httpclient\CurlTransport']);
 
-        // Build query string with json:= trick
-        $queryString = http_build_query([
+        $payload = [
             'entity' => 'Contact',
             'action' => 'getorcreate',
             'json' => 1,
-            'xcm_profile' => $module->settings->get('contactManagerProfile'),
+            'xcm_profile' => $profileName,
             'email' => $email,
             'api_key' => $apiKey,
             'key' => $siteKey,
-        ]);
+        ];
+        
+        // Add standard fields based on config
+        $selectedFields = $module->settings->get('standardFields');
+        $fields = $selectedFields ? json_decode($selectedFields, true) : [];
+        
+        $fieldMap = [
+            'firstname' => 'first_name',
+            'lastname' => 'last_name',
+            'phone_work' => 'phone',
+            'gender' => 'gender_id',
+        ];
+        
+        $profile = $user->profile;
 
-        // Add the special json:= key manually
-        $finalUrl = rtrim($url, '?') . '?' . 'json:=' . '&' . $queryString;
+        $profile = $user->profile;
+
+        foreach ($fields as $field) {
+            $civiKey = $fieldMap[$field] ?? $field;
+            $rawValue = $profile->getAttribute($field);
+            Yii::info("Field [$field] raw value: " . var_export($rawValue, true), 'humhub\modules\humhub2civicrm');
+
+        
+            // Special mapping for gender keys
+            if ($field === 'gender') {
+                $value = match ($rawValue) {
+                    'female' => 1,
+                    'male' => 2,
+                    'diverse' => 3,
+                    default => null
+                };
+            } else {
+                // General sanitization for user input fields
+                $value = trim(strip_tags((string) $rawValue));
+            }
+        
+            if (!empty($value)) {
+                $payload[$civiKey] = $value;
+            }
+        }
+        
+
+        Yii::info('Sending CiviCRM POST payload: ' . json_encode($payload), 'humhub\modules\humhub2civicrm');
 
         $response = $client->createRequest()
-            ->setMethod('GET')
-            ->setUrl($finalUrl)
+            ->setMethod('POST')
+            ->setUrl($url)
+            ->setData($payload)
             ->addHeaders([
                 'Accept' => 'application/json',
                 'User-Agent' => 'HumHubCiviBridge',
             ])
             ->send();
 
+
         if ($response->isOk) {
             $data = json_decode($response->content, true);
             
-            if (isset($data['is_error']) && $data['is_error']) {
+            if (!is_array($data)) {
+                Yii::error('CiviCRM response was not valid JSON: ' . $response->content, 'humhub\modules\humhub2civicrm');
+                return $response;
+            }
+            
+            if (!empty($data['is_error'])) {
                 Yii::error('CiviCRM application error: ' . $response->content, 'humhub\modules\humhub2civicrm');
             } else {
                 Yii::info('CiviCRM success: ' . $response->content, 'humhub\modules\humhub2civicrm');
-                $contactId = $data['id'];
-                self::updateGroups($contactId, $user);
+            
+            $contactId = $data['id'] ?? null;
+                if (!$contactId) {
+                    Yii::warning('CiviCRM response missing contact ID.', 'humhub\modules\humhub2civicrm');
+                } else {
+                    self::updateGroups($contactId, $user);
+                }
             }
         } else {
             Yii::error('CiviCRM HTTP error: ' . $response->content, 'humhub\modules\humhub2civicrm');

@@ -36,6 +36,20 @@ $initialRowCount = is_array($model->newsletters) ? count($model->newsletters) : 
         <?= $form->field($model, 'deletedGroupId')->textInput()->hint('CiviCRM Group ID to assign when using soft delete.') ?>
 
         <hr>
+        <label>Standard Profile Fields</label>
+        <p class="help-block" style="margin-top: -10px; margin-bottom: 15px;">
+            Select which standard profile fields should be included when sending user data to CiviCRM.
+            These fields will be passed to the contact matcher during creation or update.
+        </p>
+
+        <?= $form->field($model, 'standardFields')->checkboxList([
+            'firstname' => 'First Name',
+            'lastname' => 'Last Name',
+            'gender' => 'Gender',
+            'phone_work' => 'Phone',
+        ]) ?>
+
+        <hr>
 
         <label>Profile Fields to CiviCRM Group Mappings</label>
         <p class="help-block" style="margin-top: -10px; margin-bottom: 15px;">

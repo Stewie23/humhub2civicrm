@@ -21,6 +21,12 @@ class SettingsForm extends Model
     public $deleteAction; // 'soft', 'hard', or 'anonymize'
     public $deletedGroupId; // optional, used if deleteAction == 'soft'
 
+    
+    /**
+     * Default Field Information to bring to civi
+     */
+    public $standardFields = [];
+
     /**
      * Dynamic newsletter configurations:
      * Each item = ['field' => 'infobrief_optin', 'groupJoin' => '111', 'groupLeave' => '112']
@@ -33,7 +39,7 @@ class SettingsForm extends Model
             [['apiUrl', 'apiKey', 'siteKey','contactManagerProfile','deleteAction', 'deletedGroupId'], 'string'],
             [['apiUrl'], 'url'],
             ['deleteAction', 'in', 'range' => ['soft', 'hard', 'anonymize']],
-            ['newsletters', 'safe'], // We'll validate each row manually
+            [['newsletters', 'standardFields'], 'safe'],
         ];
     }
 
@@ -45,8 +51,12 @@ class SettingsForm extends Model
         $this->apiKey = $settings->get('apiKey');
         $this->siteKey = $settings->get('siteKey');
         $this->contactManagerProfile = $settings->get('contactManagerProfile');
+
         $this->deleteAction = $settings->get('deleteAction') ?: 'soft';
         $this->deletedGroupId = $settings->get('deletedGroupId');
+
+        $fields = $settings->get('standardFields');
+        $this->standardFields = $fields ? json_decode($fields, true) : [];
 
         $json = $settings->get('newsletters');
         $this->newsletters = $json ? json_decode($json, true) : [];
@@ -65,14 +75,17 @@ class SettingsForm extends Model
         $settings->set('apiKey', $this->apiKey);
         $settings->set('siteKey', $this->siteKey);
         $settings->set('contactManagerProfile', $this->contactManagerProfile);
+
+        $settings->set('standardFields', json_encode(array_values($this->standardFields)));
+
         $settings->set('deleteAction', $this->deleteAction);
         $settings->set('deletedGroupId', $this->deletedGroupId);
 
         // Clean and encode newsletter mappings
         $cleaned = array_filter($this->newsletters, function ($entry) {
-            return !empty($entry['field']);
+            return is_array($entry) && !empty($entry['field']);
         });
-
+        
         $settings->set('newsletters', json_encode(array_values($cleaned)));
     }
 
