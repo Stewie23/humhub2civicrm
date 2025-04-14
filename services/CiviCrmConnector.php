@@ -57,7 +57,7 @@ class CiviCrmConnector
             if (isset($data['is_error']) && $data['is_error']) {
                 Yii::error('CiviCRM application error: ' . $response->content, 'humhub\modules\humhub2civicrm');
             } else {
-                Yii::error('CiviCRM success: ' . $response->content, 'humhub\modules\humhub2civicrm');
+                Yii::info('CiviCRM success: ' . $response->content, 'humhub\modules\humhub2civicrm');
                 $contactId = $data['id'];
                 self::updateGroups($contactId, $user);
             }
@@ -98,13 +98,13 @@ class CiviCrmConnector
             }
    
             $value = $profile->{$field} ?? null;
-            Yii::error("Newsletter [$field]: " . var_export($value, true), 'humhub\modules\humhub2civicrm');
+            Yii::info("Newsletter [$field]: " . var_export($value, true), 'humhub\modules\humhub2civicrm');
     
             if ($value) {
-                Yii::error("Adding contact $contactId to group $groupJoin (field $field active)", 'humhub\modules\humhub2civicrm');
+                Yii::info("Adding contact $contactId to group $groupJoin (field $field active)", 'humhub\modules\humhub2civicrm');
                 self::sendGroupMembership($contactId, $groupJoin);
             } else {
-                Yii::error("Removing contact $contactId from group $groupLeave (field $field inactive)", 'humhub\modules\humhub2civicrm');
+                Yii::info("Removing contact $contactId from group $groupLeave (field $field inactive)", 'humhub\modules\humhub2civicrm');
                 self::removeFromGroup($contactId, $groupLeave);
             }
         }
@@ -129,7 +129,7 @@ class CiviCrmConnector
             'json' => 1,
         ];
     
-        Yii::error("CiviCRM GroupContact.create POST data: " . var_export($params, true), 'humhub\modules\humhub2civicrm');
+        Yii::info("CiviCRM GroupContact.create POST data: " . var_export($params, true), 'humhub\modules\humhub2civicrm');
     
         $response = $client->createRequest()
             ->setMethod('POST')
@@ -142,9 +142,9 @@ class CiviCrmConnector
             ->send();
     
         if ($response->isOk) {
-            Yii::error('Group assignment response: ' . $response->content, 'humhub\modules\humhub2civicrm');
+            Yii::info('Group assignment response: ' . $response->content, 'humhub\modules\humhub2civicrm');
         } else {
-            Yii::error('Group assignment failed: ' . $response->content, 'humhub\modules\humhub2civicrm');
+            Yii::info('Group assignment failed: ' . $response->content, 'humhub\modules\humhub2civicrm');
         }
     }
 
@@ -167,7 +167,7 @@ class CiviCrmConnector
             'json' => 1,
         ];
 
-        Yii::error("CiviCRM GroupContact.delete POST data: " . var_export($params, true), 'humhub\modules\humhub2civicrm');
+        Yii::info("CiviCRM GroupContact.delete POST data: " . var_export($params, true), 'humhub\modules\humhub2civicrm');
 
         $response = $client->createRequest()
         ->setMethod('POST')

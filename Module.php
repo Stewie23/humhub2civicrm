@@ -14,6 +14,15 @@ class Module extends BaseModule
     {
         parent::init();
 
+        Yii::getLogger()->dispatcher->targets[] = new \yii\log\FileTarget([
+            'logFile' => Yii::getAlias('@humhub/modules/humhub2civicrm/runtime/civicrm.log'),
+            'levels' => ['info', 'error', 'warning'],
+            'categories' => ['humhub\modules\humhub2civicrm'],
+            'logVars' => [],
+            'maxFileSize' => 1024, // in KB
+            'maxLogFiles' => 5,
+        ]);
+
     }
 
     public function disable()
