@@ -10,7 +10,7 @@ This module supports flexible newsletter and opt-in scenarios by linking HumHub 
 ## 🧹 Features
 
 - 🔁 **Auto-Sync on Profile Save**  
-  Whenever a HumHub user updates their profile, an API call with their email is made to CiviCRM, and linked groups are updated accordingly.
+  Whenever a HumHub user updates their profile, an API call to Extended Contact Matcher (XCM) in CiviCRM is made - Fields that are send to CiviCRM can be configured.
 
 - 📬 **Newsletter/Opt-in Mapping**  
   Profile fields (e.g., checkboxes like `receiveNewsletter`) can be mapped to CiviCRM group joins/leaves. Supports "double opt-in" logic via separate `groupJoin` and `groupLeave`.
@@ -19,13 +19,13 @@ This module supports flexible newsletter and opt-in scenarios by linking HumHub 
   Easily configure CiviCRM API credentials and field-to-group mappings via a backend settings form.
 
 - 🔗 **CiviCRM Matcher Integration**  
-  Currently uses [`xcm_profile=HumHubMatcher`](https://github.com/systopia/de.systopia.xcm) to match or create contacts in CiviCRM by email. Future versions will allow this to be configurable.
+  Currently uses [`xcm_profile=HumHubMatcher`](https://github.com/systopia/de.systopia.xcm) to match or create contacts in CiviCRM.
 
 ---
 
 ## ⚙️ How It Works
 
-1. On profile update (`onProfileUpdate`), the module sends the user's email to CiviCRM (`Contact.getorcreate`).
+1. On profile update (`onProfileUpdate`), the module sends the users profil Information to CiviCRM (`Contact.getorcreate`). A suitable matching profile must be configured.
 2. If successful, it retrieves or creates a contact.
 3. For each configured profile field:
    - If the field value is truthy → the contact is **added** to `groupJoin`
@@ -60,11 +60,16 @@ Available under **Admin Panel → Modules → humhub2civicrm → Settings**
 - The [de.systopia.xcm](https://github.com/systopia/de.systopia.xcm) extension installed and enabled in CiviCRM
 
 ---
-
 ## 🔍 Debugging / Logs
 
-All API activity (calls, errors, group actions) is logged via Yii's error logger under the category `humhub\modules\humhub2civicrm`.  
-A dedicated logging interface is planned for future versions.
+All API activity (calls, errors, group actions) is logged in two places:
+
+- **Module-specific log file**: Located in `@runtime/logs/humhub2civicrm.log`. This includes API calls, contact sync details, payload data, and group updates.
+- **HumHub's general log (`app.log`)**: Only critical errors and warnings are sent here to avoid clutter.
+
+The payload sent to CiviCRM is logged as JSON for easy inspection. If a contact update fails, CiviCRM responses are also logged in full.
+
+A dedicated admin-facing log viewer is planned for a future version.
 
 ---
 
