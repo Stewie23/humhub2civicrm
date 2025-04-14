@@ -21,5 +21,11 @@ class Events
 
         CiviCrmConnector::sendProfile($user->email,$user);
     }
+
+    public static function onUserRegistration($event)
+    {
+        $user = $event->identity; // this is the actual User object
+        CiviCrmConnector::sendProfile($user->email, $user);
+    }
 }
 ?>
