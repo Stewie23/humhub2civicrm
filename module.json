@@ -1,0 +1,10 @@
+{
+    "id": "humhub2civicrm",
+    "name": "HumHub 2 CiviCRM Connector",
+    "description": "Synchronize user profile opt-ins with a connected CiviCRM installation.",
+    "keywords": ["dummy"],
+    "version": "0.0.1",
+    "humhub": {
+        "minVersion": "1.1"
+    }
+}
