@@ -37,20 +37,48 @@ This lets you implement opt-in/out flows for newsletters, campaigns, or interest
 
 ## 🔧 Configuration
 
-Available under **Admin Panel → Modules → humhub2civicrm → Settings**
+Configuration is available under:  
+**Admin Panel → Modules → humhub2civicrm → Settings**
 
-- `apiUrl`: Full REST endpoint of your CiviCRM installation (e.g. `https://example.org/civicrm/ajax/rest`)
-- `apiKey`: CiviCRM API key of the user account
-- `siteKey`: CiviCRM site key (global config)
-- `newsletters`: JSON-configurable mappings between HumHub profile fields and CiviCRM group actions.
+### 🔐 CiviCRM API Settings
+- **`apiUrl`**: Full REST endpoint of your CiviCRM instance (e.g. `https://example.org/civicrm/ajax/rest`)
+- **`apiKey`**: CiviCRM API key (bound to the user account used for API access)
+- **`siteKey`**: CiviCRM site key (global configuration, usually from `civicrm.settings.php`)
+- **`contactManagerProfile`**: Name of the xcm matcher profile used for contact syncing (e.g. `HumHubMatcher`)
 
-### Example Configuration
+### 🧩 Field Mappings
 
-| field            | groupJoin | groupLeave | description                     |
-|------------------|-----------|------------|---------------------------------|
-| `receiveUpdates` | `102`     | `103`      | Different groups for opt-in/out |
-| `eventOptIn`     | `201`     | `202`      | Different groups for opt-in/out |
-| `specialNotice`  | `301`     | `301`      | Same group for join/leave       |
+#### Standard Fields → Contact Fields
+Use checkboxes in the settings form to choose which standard HumHub profile fields should be sent to CiviCRM. Currently supported:
+- First name
+- Last name
+- Phone (work)
+- Gender (auto-mapped to numeric CiviCRM values)
+
+More field types (e.g. address, date of birth) planned.
+
+#### Newsletter / Opt-in Groups
+Define group assignments based on boolean profile fields (e.g., checkboxes for subscriptions):
+
+| field               | groupJoin | groupLeave | description                         |
+|--------------------|-----------|------------|-------------------------------------|
+| `receiveUpdates`   | `102`     | `103`      | Different groups for opt-in/out     |
+| `eventOptIn`       | `201`     | `202`      | Different groups for opt-in/out     |
+| `specialNotice`    | `301`     | `301`      | Same group for join/leave (logging) |
+
+- If a profile field is checked (`true`), the contact is **added** to `groupJoin`
+- If unchecked (`false`), the contact is **removed** from `groupLeave`
+- If `groupJoin` = `groupLeave`, no group change occurs, but the logic still runs (e.g. for tracking)
+
+### 🗑️ Deleted User Behavior (Configuration Implemented, Fuctionality not)
+
+Choose how to propagate deleted users from HumHub to CiviCRM:
+
+- **Soft delete (default)**: Removes user from all HumHub-related groups and adds them to a dedicated "Deleted Users" group for manual review
+- **Anonymize**: Scrubs name, email, and phone from the CiviCRM contact (but retains the record)
+- **Hard delete**: Completely removes the contact from CiviCRM — use with caution
+
+You can define the CiviCRM **Group ID** to assign for soft-deleted users via a dedicated input field.
 
 ---
 
