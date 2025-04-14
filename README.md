@@ -5,6 +5,7 @@
 This module supports flexible newsletter and opt-in scenarios by linking HumHub checkboxes or profile values to CiviCRM group membership—fully automated on profile save.
 
 ---
+⚠️ Note: This module is in early development. While group joining and leaving functionality is working, logging is currently minimal and not yet user-friendly. The connection test is basic, profile field handling is limited, and matcher configuration is currently hardcoded. A dedicated log viewer and admin tools are planned.
 
 ## 🧹 Features
 
