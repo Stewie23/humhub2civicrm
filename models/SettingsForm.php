@@ -7,10 +7,19 @@ use yii\base\Model;
 
 class SettingsForm extends Model
 {
+    /**
+     * Civi Api Settings + ExtendendContactMatcher
+     */
     public $apiUrl;
     public $apiKey;
     public $siteKey;
     public $contactManagerProfile;
+
+    /**
+     * Settings for Contact Deletion
+     */
+    public $deleteAction; // 'soft', 'hard', or 'anonymize'
+    public $deletedGroupId; // optional, used if deleteAction == 'soft'
 
     /**
      * Dynamic newsletter configurations:
@@ -21,8 +30,9 @@ class SettingsForm extends Model
     public function rules()
     {
         return [
-            [['apiUrl', 'apiKey', 'siteKey','contactManagerProfile'], 'string'],
+            [['apiUrl', 'apiKey', 'siteKey','contactManagerProfile','deleteAction', 'deletedGroupId'], 'string'],
             [['apiUrl'], 'url'],
+            ['deleteAction', 'in', 'range' => ['soft', 'hard', 'anonymize']],
             ['newsletters', 'safe'], // We'll validate each row manually
         ];
     }
@@ -35,6 +45,8 @@ class SettingsForm extends Model
         $this->apiKey = $settings->get('apiKey');
         $this->siteKey = $settings->get('siteKey');
         $this->contactManagerProfile = $settings->get('contactManagerProfile');
+        $this->deleteAction = $settings->get('deleteAction') ?: 'soft';
+        $this->deletedGroupId = $settings->get('deletedGroupId');
 
         $json = $settings->get('newsletters');
         $this->newsletters = $json ? json_decode($json, true) : [];
@@ -53,6 +65,8 @@ class SettingsForm extends Model
         $settings->set('apiKey', $this->apiKey);
         $settings->set('siteKey', $this->siteKey);
         $settings->set('contactManagerProfile', $this->contactManagerProfile);
+        $settings->set('deleteAction', $this->deleteAction);
+        $settings->set('deletedGroupId', $this->deletedGroupId);
 
         // Clean and encode newsletter mappings
         $cleaned = array_filter($this->newsletters, function ($entry) {

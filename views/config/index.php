@@ -20,6 +20,22 @@ $initialRowCount = is_array($model->newsletters) ? count($model->newsletters) : 
         <?= $form->field($model, 'contactManagerProfile')->textInput(['maxlength' => true]) ?>
 
         <hr>
+        <label>Deleted User</label>
+        <p class="help-block" style="margin-top: -10px; margin-bottom: 15px;">
+            Choose how to propagate user deletions from HumHub to CiviCRM.<br><br>
+            <strong>Soft delete</strong> (default): Removes the user from all CiviCRM groups related to HumHub and adds them to a dedicated “Deleted Users” group for manual review.<br>
+            <strong>Anonymize</strong>: Replaces personal information (name, email, phone) in CiviCRM, but keeps the contact for historical or reporting purposes.<br>
+            <strong>Hard delete</strong>: Permanently deletes the contact from CiviCRM — use only if you're sure this data is no longer needed.
+        </p>
+        <?= $form->field($model, 'deleteAction')->dropDownList([
+            'soft' => 'Soft delete (move contact to group)',
+            'hard' => 'Hard delete (remove contact from CiviCRM)',
+            'anonymize' => 'Anonymize contact (GDPR-safe)',
+        ]) ?>
+
+        <?= $form->field($model, 'deletedGroupId')->textInput()->hint('CiviCRM Group ID to assign when using soft delete.') ?>
+
+        <hr>
 
         <label>Profile Fields to CiviCRM Group Mappings</label>
         <p class="help-block" style="margin-top: -10px; margin-bottom: 15px;">
