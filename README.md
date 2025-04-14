@@ -71,8 +71,8 @@ Define group assignments based on boolean profile fields (e.g., checkboxes for s
 
 - If a profile field is checked (`true`), the contact is **added** to `groupJoin`
 - If unchecked (`false`), the contact is **removed** from `groupLeave`
-- If `groupJoin` = `groupLeave`, no group change occurs, but the logic still runs (e.g., for tracking)
-
+- `groupJoin` can be left the same as `groupLeave` for simple setups, where no contact moving happens in civi
+  
 ### 🗑️ Deleted User Behavior *(Config implemented, functionality pending)*
 
 Choose how to propagate deleted users from HumHub to CiviCRM:
