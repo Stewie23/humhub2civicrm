@@ -158,6 +158,12 @@ class CiviCrmConnector
             Yii::info("Newsletter [$field]: " . var_export($value, true), 'humhub\modules\humhub2civicrm');
     
             if ($value) {
+                // Check if already subscribed
+                if (self::getGroupMembership($contactId, $groupJoin)) {
+                    Yii::info("User [$email] already subscribed to group [$groupJoin], skipping subscription.", 'humhub\modules\humhub2civicrm');
+                    return;
+                    }
+                // if not add to mailing subscription    
                 Yii::info("Adding contact $contactId to group $groupJoin (field $field active)", 'humhub\modules\humhub2civicrm');
                 self::sendMailingSubscription($email, $groupJoin);
             } else {
@@ -167,6 +173,55 @@ class CiviCrmConnector
         }
     }
 
+
+    public static function getGroupMembership($contactId, $groupId)
+    {
+        $module = Yii::$app->getModule('humhub2civicrm');
+        $url = $module->settings->get('apiUrl');
+        $apiKey = $module->settings->get('apiKey');
+        $siteKey = $module->settings->get('siteKey');
+
+        $client = new Client(['transport' => 'yii\httpclient\CurlTransport']);
+
+        $params = [
+            'entity'      => 'GroupContact',
+            'action'      => 'get',
+            'contact_id'  => $contactId,
+            'group_id'    => $groupId,
+            'status'      => 'Added',
+            'sequential'  => 1,
+            'api_key'     => $apiKey,
+            'key'         => $siteKey,
+            'json'        => 1,
+        ];
+
+        Yii::info("CiviCRM GroupContact.get params: " . var_export($params, true), 'humhub\modules\humhub2civicrm');
+
+        $response = $client->createRequest()
+            ->setMethod('POST')
+            ->setUrl($url)
+            ->setData($params)
+            ->addHeaders([
+                'Accept' => 'application/json',
+                'User-Agent' => 'HumHubCiviBridge',
+            ])
+            ->send();
+
+        if (!$response->isOk) {
+            Yii::error('Failed to query GroupContact.get: ' . $response->content, 'humhub\modules\humhub2civicrm');
+            return false;
+        }
+
+        $data = json_decode($response->content, true);
+
+        if (isset($data['count']) && $data['count'] > 0) {
+            Yii::info("Contact $contactId is ALREADY a member of group $groupId", 'humhub\modules\humhub2civicrm');
+            return true;
+        } else {
+            Yii::info("Contact $contactId is NOT a member of group $groupId", 'humhub\modules\humhub2civicrm');
+            return false;
+        }
+    }
 
     private static function sendMailingSubscription($email, $groupId)
     {
