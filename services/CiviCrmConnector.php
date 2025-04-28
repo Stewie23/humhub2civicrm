@@ -123,6 +123,12 @@ class CiviCrmConnector
     {
         $profile = $user->profile;
         $module = Yii::$app->getModule('humhub2civicrm');
+        $email = $user->email;
+
+        if (empty($email)) {
+            Yii::error("User {$user->id} has no email address — cannot update mailing subscriptions.", 'humhub\modules\humhub2civicrm');
+            return;
+        }
     
         $rawConfig = $module->settings->get('newsletters');
         $newsletterConfig = $rawConfig ? json_decode($rawConfig, true) : [];
@@ -153,13 +159,52 @@ class CiviCrmConnector
     
             if ($value) {
                 Yii::info("Adding contact $contactId to group $groupJoin (field $field active)", 'humhub\modules\humhub2civicrm');
-                self::sendGroupMembership($contactId, $groupJoin);
+                self::sendMailingSubscription($email, $groupJoin);
             } else {
                 Yii::info("Removing contact $contactId from group $groupLeave (field $field inactive)", 'humhub\modules\humhub2civicrm');
                 self::removeFromGroup($contactId, $groupLeave);
             }
         }
     }
+
+
+    private static function sendMailingSubscription($email, $groupId)
+    {
+        $module = Yii::$app->getModule('humhub2civicrm');
+        $url = $module->settings->get('apiUrl');
+        $apiKey = $module->settings->get('apiKey');
+        $siteKey = $module->settings->get('siteKey');
+    
+        $client = new Client(['transport' => 'yii\httpclient\CurlTransport']);
+    
+        $params = [
+            'entity'   => 'MailingEventSubscribe',
+            'action'   => 'create',
+            'group_id' => $groupId,
+            'email'    => $email,
+            'api_key'  => $apiKey,
+            'key'      => $siteKey,
+            'json'     => 1,
+        ];
+    
+        Yii::info("CiviCRM MailingEventSubscribe.create POST data: " . var_export($params, true), 'humhub\modules\humhub2civicrm');
+    
+        $response = $client->createRequest()
+            ->setMethod('POST')
+            ->setUrl($url)
+            ->setData($params)
+            ->addHeaders([
+                'Accept' => 'application/json',
+                'User-Agent' => 'HumHubCiviBridge',
+            ])
+            ->send();
+    
+        if ($response->isOk) {
+            Yii::info('Mailing subscription response: ' . $response->content, 'humhub\modules\humhub2civicrm');
+        } else {
+            Yii::info('Mailing subscription failed: ' . $response->content, 'humhub\modules\humhub2civicrm');
+        }
+    } 
 
     private static function sendGroupMembership($contactId, $groupId)
     {
