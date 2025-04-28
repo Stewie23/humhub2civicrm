@@ -141,9 +141,9 @@ class CiviCrmConnector
         foreach ($newsletterConfig as $entry) {
             $field = $entry['field'] ?? null;
             $groupJoin = $entry['groupJoin'] ?? null;
-            $groupLeave = $entry['groupLeave'] ?? null;
+ 
     
-            if (!$field || !$groupJoin || !$groupLeave) {
+            if (!$field || !$groupJoin) {
                 Yii::error("Skipping invalid config entry: " . var_export($entry, true), 'humhub\modules\humhub2civicrm');
                 continue;
             }
@@ -161,8 +161,8 @@ class CiviCrmConnector
                 Yii::info("Adding contact $contactId to group $groupJoin (field $field active)", 'humhub\modules\humhub2civicrm');
                 self::sendMailingSubscription($email, $groupJoin);
             } else {
-                Yii::info("Removing contact $contactId from group $groupLeave (field $field inactive)", 'humhub\modules\humhub2civicrm');
-                self::removeFromGroup($contactId, $groupLeave);
+                Yii::info("Removing contact $contactId from group $groupJoin  (field $field inactive)", 'humhub\modules\humhub2civicrm');
+                self::removeFromGroup($contactId, $groupJoin );
             }
         }
     }
