@@ -32,14 +32,12 @@ All settings (CiviCRM API, field mappings, group IDs) can be configured via HumH
 2. Standard fields and configured mappings are included in the payload.
 
 3. For newsletter fields:
-
-  If enabled, the module sends a MailingEventSubscribe.create request to initiate a proper double opt-in process in CiviCRM.
-
-  Also removes the user from the Groups if they deselect newsletters in humhub
+   - If enabled, the module sends a `MailingEventSubscribe.create` request to initiate a proper double opt-in process in CiviCRM.
+   - If the user deselects a newsletter checkbox in HumHub, they are removed from the corresponding CiviCRM mailing group via `GroupContact.delete`
 
 4. On user deletion:
-
-  Catches HumHub soft and hard delte and propagtes this to civicrm, a group has to be set up in civi and added in the config.
+   - Handles both soft and hard deletions in HumHub and propagates the event to CiviCRM.
+   - For soft deletes, the user is added to a configured "Deleted Users" group in CiviCRM.
 
 ---
 
@@ -74,8 +72,8 @@ Define group assignments based on boolean profile fields (e.g., checkboxes for s
 | `eventOptIn`       | `201`     |
 | `specialNotice`    | `301`     | 
 
-- If a profile field is checked (`true`), the contact is **added** to a newsletter
-- If unchecked (`false`), the contact is **removed** 
+- If a profile field is checked (`true`), the contact is subscribed to the associated CiviCRM mailing group.
+- If unchecked (`false`), the contact is **removed** from the Group.
 
   
 ### 🗑️ Deleted User Behavior *(Config implemented, functionality pending)*
@@ -88,7 +86,8 @@ Choose how to propagate deleted users from HumHub to CiviCRM:
 
 You can define the CiviCRM **Group ID** to assign for soft-deleted users via a dedicated input field.
 
-For its always the soft delete logic
+Note: Currently, all deletions follow the soft delete logic on the CiviCRM side. Hard deletes and anonymization are not yet fully implemented.
+
 
 ---
 

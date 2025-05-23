@@ -1,10 +1,10 @@
 {
     "id": "humhub2civicrm",
-    "name": "HumHub 2 CiviCRM Connector",
-    "description": "Synchronize user profile opt-ins with a connected CiviCRM installation.",
-    "keywords": ["dummy"],
-    "version": "0.0.1",
+    "name": "HumHub to CiviCRM Connector",
+    "description": "Synchronizes HumHub user profile data and newsletter opt-ins with CiviCRM using the Extended Contact Matcher.",
+    "keywords": ["humhub", "civicrm", "integration", "sync", "newsletter", "xcm"],
+    "version": "0.5.0",
     "humhub": {
-        "minVersion": "1.1"
+        "minVersion": "1.10"
     }
 }
