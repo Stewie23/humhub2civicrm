@@ -341,6 +341,30 @@ class CiviCrmConnector
     public static function handleUserDeletion($email, $user)
     {
         Yii::info("User deleted: {$email} (ID: {$user->id})", 'humhub\modules\humhub2civicrm');
+
+        $module = Yii::$app->getModule('humhub2civicrm');
+        $groupId = $module->settings->get('deletedGroupId');
+
+        if (!$groupId) {
+            Yii::warning("No deletedGroupId configured in module settings.", 'humhub\modules\humhub2civicrm');
+            return;
+        }
+
+        // Get or create the CiviCRM contact
+        $response = self::sendProfile($email, $user);
+
+        $data = json_decode($response->content ?? '', true);
+        $contactId = $data['id'] ?? null;
+
+        if (!$contactId) {
+            Yii::error("Could not resolve contact ID for deleted user: $email", 'humhub\modules\humhub2civicrm');
+            return;
+        }
+
+        // Reuse existing method
+        self::sendGroupMembership($contactId, $groupId);
+
+        Yii::info("Added contact $contactId to deleted group $groupId", 'humhub\modules\humhub2civicrm');
     }
 
 }

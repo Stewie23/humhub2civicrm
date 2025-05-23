@@ -3,7 +3,9 @@
 namespace humhub\modules\humhub2civicrm;
 
 use Yii;
+use yii\base\Event;
 use humhub\modules\humhub2civicrm\services\CiviCrmConnector;
+use humhub\modules\user\events\UserEvent;
 
 class Events
 {
@@ -28,12 +30,16 @@ class Events
         CiviCrmConnector::sendProfile($user->email, $user);
     }
 
-    public static function onUserDelete($event)
+    public static function onUserSoftDelete(UserEvent $event)
+    {
+        $user = $event->user; // this is the User model
+        CiviCrmConnector::handleUserDeletion($user->email, $user);
+    }  
+
+    public static function onUserHardDelete(Event $event)
     {
         $user = $event->sender;
         CiviCrmConnector::handleUserDeletion($user->email, $user);
-    }
-
-    
+    }   
 }
 ?>

@@ -4,6 +4,8 @@ use humhub\modules\user\models\Profile;
 use humhub\modules\user\models\forms\Registration;
 use humhub\modules\user\models\User;
 
+
+
 return [
     'id' => 'humhub2civicrm',
     'class' => 'humhub\modules\humhub2civicrm\Module',
@@ -19,10 +21,17 @@ return [
             'event' => Registration::EVENT_AFTER_REGISTRATION,
             'callback' => ['humhub\modules\humhub2civicrm\Events', 'onUserRegistration'],
         ],
+
         [
             'class' => User::class,
-            'event' => User::EVENT_AFTER_DELETE,
-            'callback' => ['humhub\modules\humhub2civicrm\Events', 'onUserDelete'],
+            'event' => User::EVENT_BEFORE_SOFT_DELETE,
+            'callback' => ['humhub\modules\humhub2civicrm\Events', 'onUserSoftDelete'], 
+        ],
+
+        [
+            'class' => User::class,
+            'event' => User::EVENT_BEFORE_DELETE,
+            'callback' => ['humhub\modules\humhub2civicrm\Events', 'onUserHardDelete'],
         ]
     ]
 ];
