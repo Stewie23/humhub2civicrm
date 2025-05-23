@@ -63,7 +63,7 @@ class SettingsForm extends Model
 
         // Ensure at least one empty row for UI
         if (empty($this->newsletters)) {
-            $this->newsletters[] = ['field' => '', 'groupJoin' => '', 'groupLeave' => ''];
+            $this->newsletters[] = ['field' => '', 'groupJoin' => ''];
         }
     }
 

@@ -16,13 +16,13 @@ This module supports flexible newsletter and opt-in scenarios by linking HumHub 
   Whenever a HumHub user updates their profile, an API call to the Extended Contact Matcher (XCM) in CiviCRM is made. Fields to send to CiviCRM can be configured.
 
 - 📬 **Newsletter/Opt-in Mapping**  
-  Profile fields (e.g., checkboxes like `receiveNewsletter`) can be mapped to CiviCRM group joins/leaves. Supports "double opt-in" logic via separate `groupJoin` and `groupLeave`.
+  Profile fields (e.g., checkboxes like `receiveNewsletter`) can be mapped to CiviCRM group joins/leaves. 
 
 - 🔧 **Flexible Admin Configuration**  
   Easily configure CiviCRM API credentials and field-to-group mappings via a backend settings form.
 
 - 🔗 **CiviCRM Matcher Integration**  
-  Currently uses [`xcm_profile=HumHubMatcher`](https://github.com/systopia/de.systopia.xcm) to match or create contacts in CiviCRM.
+  Currently uses Extended Contact Matcher (https://github.com/systopia/de.systopia.xcm) to match or create contacts in CiviCRM.
 
 ---
 

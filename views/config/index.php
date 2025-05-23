@@ -67,8 +67,6 @@ $initialRowCount = is_array($model->newsletters) ? count($model->newsletters) : 
                            value="<?= Html::encode($entry['field']) ?>" placeholder="Profile field" style="width: 30%;" />
                     <input type="text" class="form-control" name="SettingsForm[newsletters][<?= $i ?>][groupJoin]"
                            value="<?= Html::encode($entry['groupJoin']) ?>" placeholder="Join group ID" style="width: 20%; margin-left:5px;" />
-                    <input type="text" class="form-control" name="SettingsForm[newsletters][<?= $i ?>][groupLeave]"
-                           value="<?= Html::encode($entry['groupLeave']) ?>" placeholder="Leave group ID" style="width: 20%; margin-left:5px;" />
                     <button type="button" class="remove-newsletter-row btn btn-danger btn-sm" style="margin-left:5px;">&times;</button>
                 </div>
             <?php endforeach; ?>
