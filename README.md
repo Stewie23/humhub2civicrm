@@ -10,31 +10,36 @@ This module supports flexible newsletter and opt-in scenarios by linking HumHub 
 
 ---
 
-## 🧹 Features
+## Features
+### Profile Sync
+Automatically sync selected HumHub profile fields to CiviCRM whenever a user updates their profile.
 
-- 🔁 **Auto-Sync on Profile Save**  
-  Whenever a HumHub user updates their profile, an API call to the Extended Contact Matcher (XCM) in CiviCRM is made. Fields to send to CiviCRM can be configured.
+### Double Opt-in Newsletter Subscriptions
+Profile fields mapped to newsletter subscriptions now use CiviCRM’s MailingEventSubscribe API for proper double opt-in handling.
 
-- 📬 **Newsletter/Opt-in Mapping**  
-  Profile fields (e.g., checkboxes like `receiveNewsletter`) can be mapped to CiviCRM group joins/leaves. 
+### Configurable Deletion Behavior
+On user deletion in HumHub (soft or hard), CiviCRM contacts can be moved to a group, anonymized, or deleted.
 
-- 🔧 **Flexible Admin Configuration**  
-  Easily configure CiviCRM API credentials and field-to-group mappings via a backend settings form.
-
-- 🔗 **CiviCRM Matcher Integration**  
-  Currently uses Extended Contact Matcher (https://github.com/systopia/de.systopia.xcm) to match or create contacts in CiviCRM.
+### Admin UI Configuration
+All settings (CiviCRM API, field mappings, group IDs) can be configured via HumHub’s module admin panel.
 
 ---
 
 ## ⚙️ How It Works
 
-1. On profile update (`onProfileUpdate`), the module sends the user's profile information to CiviCRM (`Contact.getorcreate`). A suitable matching profile must be configured.
-2. If successful, it retrieves or creates a contact.
-3. For each configured profile field:
-   - If the field value is truthy → the contact is **added** to `groupJoin`
-   - If the field is falsy → the contact is **removed** from `groupLeave`
+1. On profile update, the module sends the user's data to CiviCRM using Contact.getorcreate.
 
-This lets you implement opt-in/out flows for newsletters, campaigns, or interest-based tagging in CiviCRM.
+2. Standard fields and configured mappings are included in the payload.
+
+3. For newsletter fields:
+
+  If enabled, the module sends a MailingEventSubscribe.create request to initiate a proper double opt-in process in CiviCRM.
+
+  Also removes the user from the Groups if they deselect newsletters in humhub
+
+4. On user deletion:
+
+  Catches HumHub soft and hard delte and propagtes this to civicrm, a group has to be set up in civi and added in the config.
 
 ---
 
@@ -60,18 +65,18 @@ Use checkboxes in the settings form to choose which standard HumHub profile fiel
 
 More field types (e.g. address, date of birth) are planned.
 
-#### Newsletter / Opt-in Groups
+#### Newsletter 
 Define group assignments based on boolean profile fields (e.g., checkboxes for subscriptions):
 
-| field               | groupJoin | groupLeave | description                         |
-|--------------------|-----------|------------|-------------------------------------|
-| `receiveUpdates`   | `102`     | `103`      | Different groups for opt-in/out     |
-| `eventOptIn`       | `201`     | `202`      | Different groups for opt-in/out     |
-| `specialNotice`    | `301`     | `301`      | Same group for join/leave (logging) |
+| field               | groupJoin | 
+|--------------------|-----------|
+| `receiveUpdates`   | `102`     | 
+| `eventOptIn`       | `201`     |
+| `specialNotice`    | `301`     | 
 
-- If a profile field is checked (`true`), the contact is **added** to `groupJoin`
-- If unchecked (`false`), the contact is **removed** from `groupLeave`
-- `groupJoin` can be left the same as `groupLeave` for simple setups, where no contact moving happens in civi
+- If a profile field is checked (`true`), the contact is **added** to a newsletter
+- If unchecked (`false`), the contact is **removed** 
+
   
 ### 🗑️ Deleted User Behavior *(Config implemented, functionality pending)*
 
@@ -82,6 +87,8 @@ Choose how to propagate deleted users from HumHub to CiviCRM:
 - **Hard delete**: Completely removes the contact from CiviCRM — use with caution.
 
 You can define the CiviCRM **Group ID** to assign for soft-deleted users via a dedicated input field.
+
+For its always the soft delete logic
 
 ---
 
