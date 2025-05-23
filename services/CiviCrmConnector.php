@@ -195,7 +195,11 @@ class CiviCrmConnector
             'json'        => 1,
         ];
 
-        Yii::info("CiviCRM GroupContact.get params: " . var_export($params, true), 'humhub\modules\humhub2civicrm');
+        $logParams = $params;
+        $logParams['api_key'] = '****';
+        $logParams['key'] = '****';
+
+        Yii::info("CiviCRM GroupContact.get params: " . var_export($logParams, true), 'humhub\modules\humhub2civicrm');
 
         $response = $client->createRequest()
             ->setMethod('POST')
@@ -241,8 +245,12 @@ class CiviCrmConnector
             'key'      => $siteKey,
             'json'     => 1,
         ];
+
+        $logParams = $params;
+        $logParams['api_key'] = '****';
+        $logParams['key'] = '****';
     
-        Yii::info("CiviCRM MailingEventSubscribe.create POST data: " . var_export($params, true), 'humhub\modules\humhub2civicrm');
+        Yii::info("CiviCRM MailingEventSubscribe.create POST data: " . var_export($logParams, true), 'humhub\modules\humhub2civicrm');
     
         $response = $client->createRequest()
             ->setMethod('POST')
@@ -279,8 +287,12 @@ class CiviCrmConnector
             'key' => $siteKey,
             'json' => 1,
         ];
+
+        $logParams = $params;
+        $logParams['api_key'] = '****';
+        $logParams['key'] = '****';
     
-        Yii::info("CiviCRM GroupContact.create POST data: " . var_export($params, true), 'humhub\modules\humhub2civicrm');
+        Yii::info("CiviCRM GroupContact.create POST data: " . var_export($logParams, true), 'humhub\modules\humhub2civicrm');
     
         $response = $client->createRequest()
             ->setMethod('POST')
@@ -318,7 +330,11 @@ class CiviCrmConnector
             'json' => 1,
         ];
 
-        Yii::info("CiviCRM GroupContact.delete POST data: " . var_export($params, true), 'humhub\modules\humhub2civicrm');
+        $logParams = $params;
+        $logParams['api_key'] = '****';
+        $logParams['key'] = '****';
+
+        Yii::info("CiviCRM GroupContact.delete POST data: " . var_export($logParams, true), 'humhub\modules\humhub2civicrm');
 
         $response = $client->createRequest()
         ->setMethod('POST')
