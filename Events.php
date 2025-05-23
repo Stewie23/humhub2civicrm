@@ -27,5 +27,13 @@ class Events
         $user = $event->identity; // this is the actual User object
         CiviCrmConnector::sendProfile($user->email, $user);
     }
+
+    public static function onUserDelete($event)
+    {
+        $user = $event->sender;
+        CiviCrmConnector::handleUserDeletion($user->email, $user);
+    }
+
+    
 }
 ?>

@@ -238,4 +238,9 @@ class CiviCrmConnector
     
     }
 
+    public static function handleUserDeletion($email, $user)
+    {
+        Yii::info("User deleted: {$email} (ID: {$user->id})", 'humhub\modules\humhub2civicrm');
+    }
+
 }
